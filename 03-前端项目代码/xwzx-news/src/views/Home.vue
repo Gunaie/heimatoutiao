@@ -2,7 +2,7 @@
   <div class="home-page">
     <van-nav-bar :title="$t('title')" />
     
-    <van-tabs v-model:active="activeCategory" @change="handleCategoryChange" sticky>
+    <van-tabs v-model:active="activeCategoryIndex" @change="handleCategoryChange" sticky>
       <van-tab v-for="cat in categories" :key="cat.id" :title="cat.name">
         <van-pull-refresh v-model="refreshing" @refresh="loadNews(true)" :disabled="!categories.length">
           <van-list
@@ -58,7 +58,7 @@ import { newsApi } from '../api'
 const router = useRouter()
 
 const categories = ref([])
-const activeCategory = ref(1)
+const activeCategoryIndex = ref(0)
 const newsList = ref([])
 const page = ref(1)
 const pageSize = ref(10)
@@ -76,9 +76,9 @@ async function loadCategories() {
   try {
     const res = await newsApi.getCategories()
     if (res.code === 200) {
-      categories.value = res.data
+      categories.value = res.data.filter(cat => cat.id !== 1)
       if (categories.value.length > 0) {
-        activeCategory.value = categories.value[0].id
+        activeCategoryIndex.value = 0
         loadNews()
       }
     }
@@ -100,8 +100,11 @@ async function loadNews(isRefresh = false) {
   }
 
   try {
+    const currentCategory = categories.value[activeCategoryIndex.value]
+    if (!currentCategory) return
+    
     const res = await newsApi.getList({
-      categoryId: activeCategory.value,
+      categoryId: currentCategory.id,
       page: page.value,
       pageSize: pageSize.value
     })

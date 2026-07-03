@@ -39,7 +39,7 @@ async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit
     page = skip // limit + 1
     cached_list = await safe_cache_call(get_cache_news_list(category_id, page, limit))
     if cached_list:
-        return [News(**item) for item in cached_list]
+        return cached_list
 
     stmt = select(News).where(News.category_id == category_id).offset(skip).limit(limit)
     result = await db.execute(stmt)
@@ -48,8 +48,9 @@ async def get_news_list(db: AsyncSession, category_id: int, skip: int = 0, limit
     if news_list:
         news_data = [NewsItemBase.model_validate(item).model_dump(mode="json", by_alias=False) for item in news_list]
         await safe_cache_call(set_cache_news_list(category_id, page, limit, news_data))
+        return news_data
 
-    return news_list
+    return []
 
 
 async def get_news_count(db: AsyncSession, category_id: int):
