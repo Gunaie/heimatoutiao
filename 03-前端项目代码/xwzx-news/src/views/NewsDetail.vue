@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { newsApi, favoriteApi, historyApi } from '../api'
 import { useUserStore } from '../store/user'
@@ -67,7 +67,16 @@ onMounted(() => {
   loadNewsDetail()
 })
 
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    newsId.value = parseInt(newId)
+    loadNewsDetail()
+  }
+})
+
 async function loadNewsDetail() {
+  window.scrollTo(0, 0)
+  news.value = null
   try {
     const res = await newsApi.getDetail({ id: newsId.value })
     if (res.code === 200) {
