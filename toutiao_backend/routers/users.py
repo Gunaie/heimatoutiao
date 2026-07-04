@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/user", tags=["users"])
 
 @router.post("/register")
 @limiter.limit("10/minute")
-async def register(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
+async def register(request: Request, user_data: UserRequest, db: AsyncSession = Depends(get_db)):
     existing_user = await users.get_user_by_username(db, user_data.username)
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="用户已存在")
@@ -28,7 +28,7 @@ async def register(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login")
 @limiter.limit("5/minute")
-async def login(user_data: UserRequest, db: AsyncSession = Depends(get_db)):
+async def login(request: Request, user_data: UserRequest, db: AsyncSession = Depends(get_db)):
     user = await users.authenticate_user(db, user_data.username, user_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="用户名或密码错误")

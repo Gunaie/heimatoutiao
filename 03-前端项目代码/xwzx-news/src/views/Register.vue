@@ -17,6 +17,7 @@
           type="password"
           required
         />
+        <p class="password-tip">密码需6-128个字符</p>
         <van-field
           v-model="form.confirmPassword"
           :label="$t('confirmPassword')"
@@ -85,6 +86,12 @@ function goToLogin() {
 
 .register-form {
   padding: 24px;
+}
+
+.password-tip {
+  font-size: 12px;
+  color: #ff6b6b;
+  margin: -8px 0 12px 16px;
 }
 
 .login-link {

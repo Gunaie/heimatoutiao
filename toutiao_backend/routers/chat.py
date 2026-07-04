@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
 import httpx
@@ -34,20 +34,21 @@ def get_mock_response(message: str) -> str:
 @router.post("/completion")
 @limiter.limit("10/minute")
 async def chat_completion(
-    request: ChatRequest,
+    request: Request,
+    chat_request: ChatRequest,
     db: AsyncSession = Depends(get_db),
     user=Depends(get_current_user)
 ):
     messages = []
 
-    for item in request.history:
+    for item in chat_request.history:
         messages.append({"role": "user", "content": item["user"]})
         messages.append({"role": "assistant", "content": item["assistant"]})
 
-    messages.append({"role": "user", "content": request.message})
+    messages.append({"role": "user", "content": chat_request.message})
 
     if not settings.DASHSCOPE_API_KEY or len(settings.DASHSCOPE_API_KEY) < 10:
-        mock_answer = get_mock_response(request.message)
+        mock_answer = get_mock_response(chat_request.message)
         return success_response(message="success", data={"answer": mock_answer})
 
     headers = {

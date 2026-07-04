@@ -6,17 +6,7 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 class UserRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, description="用户名，3-50个字符")
-    password: str = Field(..., min_length=8, description="密码，至少8位，包含大小写字母和数字")
-
-    @field_validator('password')
-    def validate_password(cls, v):
-        if not re.search(r'[a-z]', v):
-            raise ValueError('密码必须包含小写字母')
-        if not re.search(r'[A-Z]', v):
-            raise ValueError('密码必须包含大写字母')
-        if not re.search(r'[0-9]', v):
-            raise ValueError('密码必须包含数字')
-        return v
+    password: str = Field(..., min_length=6, max_length=128, description="密码，6-128个字符")
 
 
 class UserInfoBase(BaseModel):

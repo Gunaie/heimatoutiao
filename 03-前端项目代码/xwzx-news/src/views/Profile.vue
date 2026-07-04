@@ -12,10 +12,10 @@
 
     <div v-else class="profile-content">
       <div class="user-info">
-        <van-image :src="userStore.userInfo.avatar" class="avatar" fit="cover" />
+        <van-image :src="userStore.userInfo?.avatar || ''" class="avatar" fit="cover" />
         <div class="info">
-          <h2 class="username">{{ userStore.userInfo.username }}</h2>
-          <p class="bio">{{ userStore.userInfo.bio || '这个人很懒，什么都没留下' }}</p>
+          <h2 class="username">{{ userStore.userInfo?.username || '' }}</h2>
+          <p class="bio">{{ userStore.userInfo?.bio || '这个人很懒，什么都没留下' }}</p>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import axios from 'axios'
-import { Toast } from 'vant'
+import { showToast } from 'vant'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8888'
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -51,35 +51,40 @@ api.interceptors.response.use(
       
       switch (status) {
         case 400:
-          Toast.error(errorMsg)
+          showToast({ message: errorMsg, icon: 'error' })
           break
         case 401:
           localStorage.removeItem('token')
           localStorage.removeItem('userInfo')
-          Toast.error('登录已过期，请重新登录')
+          showToast({ message: '登录已过期，请重新登录', icon: 'error' })
           setTimeout(() => {
             window.location.href = '/login'
           }, 1500)
           break
         case 403:
-          Toast.error('无权限访问')
+          showToast({ message: '无权限访问', icon: 'error' })
+          break
+        case 422:
+          const detail = data?.detail || []
+          const validationError = detail.map(item => item.msg).join('; ')
+          showToast({ message: validationError || '参数验证失败', icon: 'error' })
           break
         case 429:
-          Toast.error('请求过于频繁，请稍后再试')
+          showToast({ message: '请求过于频繁，请稍后再试', icon: 'error' })
           break
         case 500:
-          Toast.error('服务器内部错误，请稍后再试')
+          showToast({ message: '服务器内部错误，请稍后再试', icon: 'error' })
           break
         default:
-          Toast.error(errorMsg)
+          showToast({ message: errorMsg, icon: 'error' })
       }
     } else if (message) {
       if (message.includes('Network Error')) {
-        Toast.error('网络连接异常，请检查网络')
+        showToast({ message: '网络连接异常，请检查网络', icon: 'error' })
       } else if (message.includes('timeout')) {
-        Toast.error('请求超时，请重试')
+        showToast({ message: '请求超时，请重试', icon: 'error' })
       } else {
-        Toast.error('请求失败')
+        showToast({ message: '请求失败', icon: 'error' })
       }
     }
     
